@@ -12,7 +12,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 500px;
+    height: 540px;
     width: 400px;
     box-sizing: border-box;
 }
@@ -30,14 +30,65 @@ body {
 
 .display-text {
     font-size: 30px;
+    height: 30px;
 }
 
 .buttons {
     display: flex;
-    orientation: column;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
     align-items: center;
 }
 
 .operation-buttons {
     display: flex;
+    flex-direction: row;
+    gap: 0px;
+    margin: 0px;
 }
+
+.core {
+    width: 75%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+}
+
+.operators {
+    width: 25%;
+}
+
+button {
+    width: 70px;
+    height: 50px;
+    border-radius: 20px;
+    box-sizing: border-box;
+    border: 1px, black, solid;
+    background-color: white;
+    margin: 10px 0px;
+}
+
+.core button {
+    width: 30%;
+}
+
+.core [id='0'] {
+    width: 60%;
+}
+
+.others {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.others buttons {
+    width: 30%;
+}
+
+#equals {
+    background-color: lightgray;
+}
+
+/*Display plan: center numbers with a big 0. Top operators. Right others. Different colors*/

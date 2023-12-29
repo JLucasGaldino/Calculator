@@ -76,11 +76,11 @@ function applyFirstOperations(operationString) {
     let operationResult = operate(leftSideOperation, firstArrayOperator, rightSideOperation);
 
     //Round the operation result if needed
-    
+    /*
     if (!Number.isInteger(operationResult)) {
         operationResult = Math.round(operationResult * 100) / 100;
     }
-
+    */
     //Get first index and last index containing the expression (it's coordinates in the equation)
     let subOperationStart = arrayOperatorIndex - leftSideOperation.toString().length;
     let subOperationLength = leftSideOperation.toString().length + rightSideOperation.toString().length + 1;
@@ -119,10 +119,11 @@ function applySecondOperations(operationString) {
     let operationResult = operate(leftSideOperation, firstArrayOperator, rightSideOperation);
 
     //Round the operation result if needed
+    /*
     if (!Number.isInteger(operationResult)) {
         operationResult = Math.round(operationResult * 100) / 100;
     }
-
+    */
     //Get first index and last index containing the expression (it's coordinates in the equation)
     let subOperationStart = arrayOperatorIndex - leftSideOperation.toString().length;
     let subOperationLength = leftSideOperation.toString().length + rightSideOperation.toString().length + 1;
@@ -144,7 +145,8 @@ function applyOperationsAll(equationString) {
         lastArraySymbol == '-' ||
         firstArraySymbol == '*' ||
         firstArraySymbol == '/' ||
-        firstArraySymbol == '+') {
+        firstArraySymbol == '+' ||
+        firstArraySymbol == '.') {
         return "Invalid!"
     } else {
         while (equationArray.includes('*') || equationArray.includes('/')) {
@@ -158,6 +160,10 @@ function applyOperationsAll(equationString) {
         if (equationString == "Infinity" || equationString == "-Infinity" || equationString == "NaN") {
             return "Careful! The fabric of the universe might rip apa-";
         } else {
+            //Round final answer
+            if (!Number.isInteger(Number(equationString))) {
+                equationString = Math.round(Number(equationString) * 100) / 100;
+            }
             return equationString;
         }
     }
@@ -188,11 +194,30 @@ let displayContent = displayText.textContent;
 let lastSymbol = '';
 operationButtons.addEventListener('click', (buttonClicked) => {
     lastSymbol = displayContent.split('').slice().reverse('')[0];
-    console.log(lastSymbol);
     let selectedSymbol = buttonClicked.target;
     if (!(isOperator(selectedSymbol.id) && isOperator(lastSymbol))) {
-        displayText.textContent = displayContent.concat('', String(selectedSymbol.id));
-        displayContent = displayText.textContent;
+        if (selectedSymbol.id === '.') {
+            let precedingArray = displayContent.split('');
+            let precedingOperator = precedingArray.slice().reverse().filter(symbol => isOperator(symbol))[0];
+            let precedingOperatorIndex = precedingArray.lastIndexOf(precedingOperator);
+            let startIndex = 0;
+            if (precedingOperatorIndex !== -1) {
+                startIndex = precedingOperatorIndex + 1;
+            }
+            let precedingValue = precedingArray.slice(startIndex);
+            if (!precedingValue.includes('.')) {
+                displayText.textContent = displayContent.concat('', String(selectedSymbol.id));
+                displayContent = displayText.textContent;
+            }
+            //If no other in term, print
+            //Just need to check back
+            //Find previous operator
+            //Cut between last operator's index or [0] if none and now
+            //If previous point (includes), don't put another
+        } else {
+            displayText.textContent = displayContent.concat('', String(selectedSymbol.id));
+            displayContent = displayText.textContent;
+        }
     }
 });
 
@@ -216,8 +241,3 @@ delButton.addEventListener('click', () => {
     displayText.textContent = displayContent.split('').slice(0, -1).join('');
     displayContent = displayText.textContent;
 });
-
-
-//Tasks
-//- Make it impossible to have two operators in a row
-//Make it invalid if entry starts with an operator (except to indicate negative numbers)
