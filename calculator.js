@@ -30,17 +30,7 @@ function operate(firstNumber, operator, secondNumber) {
     }
 }
 
-const operationButtons = document.querySelector('.operation-buttons');
-const displayText = document.querySelector('.display-text');
-let displayContent = displayText.textContent;
-operationButtons.addEventListener('click', (buttonClicked) => {
-    let selectedSymbol = buttonClicked.target;
-    displayText.textContent = displayContent.concat('', String(selectedSymbol.id));
-    displayContent = displayText.textContent;
-});
-
-//Apply operations once
-
+//Define operations
 function applyOperationOnce(operationString) {
     //Transform the simple operation string into a simple operation array
     let operationArray = operationString.split('');
@@ -56,7 +46,7 @@ function applyOperationOnce(operationString) {
     return operate(leftSide, arrayOperator, rightSide);
 }
 
-//Create a function that takes a long string of operations and return a single operation to do.
+//Executes first priority operations ("*", "/") in order
 function applyFirstOperations(operationString) {
     let operationArray = operationString.split('');
 
@@ -100,7 +90,7 @@ function applyFirstOperations(operationString) {
     return operationArray.join('');
 }
 
-//Operate now on second priority operations
+//Executes second priority operations ("+", "-") in order
 function applySecondOperations(operationString) {
     let operationArray = operationString.split('');
     //Make adjustments so negative number markers ("-") are not read as operators
@@ -142,16 +132,92 @@ function applySecondOperations(operationString) {
     return operationArray.join('');
 }
 
+//Apply a chain of operations
 function applyOperationsAll(equationString) {
     let equationArray = equationString.split('');
-    while (equationArray.includes('*') || equationArray.includes('/')) {
-        equationString = applyFirstOperations(equationString);
-        equationArray = equationString.split('');
+    //Verifies if string ends with an operator. If so, returns invalid.
+    let firstArraySymbol = equationArray[0];
+    let lastArraySymbol = equationArray.slice().reverse()[0];
+    if (lastArraySymbol == '*' || 
+        lastArraySymbol == '/' || 
+        lastArraySymbol == '+' || 
+        lastArraySymbol == '-' ||
+        firstArraySymbol == '*' ||
+        firstArraySymbol == '/' ||
+        firstArraySymbol == '+') {
+        return "Invalid!"
+    } else {
+        while (equationArray.includes('*') || equationArray.includes('/')) {
+            equationString = applyFirstOperations(equationString);
+            equationArray = equationString.split('');
+        }
+        while (equationArray.slice(1).includes('+') || equationArray.slice(1).includes('-')) {
+            equationString = applySecondOperations(equationString);
+            equationArray = equationString.split('');
+        }
+        if (equationString == "Infinity" || equationString == "-Infinity" || equationString == "NaN") {
+            return "Careful! The fabric of the universe might rip apa-";
+        } else {
+            return equationString;
+        }
     }
-    while (equationArray.slice(1).includes('+') || equationArray.slice(1).includes('-')) {
-        equationString = applySecondOperations(equationString);
-        equationArray = equationString.split('');
-    }
-
-    return equationString
 }
+
+//Store last button pressed
+/*
+let lastButtonPressed = "";
+const operatorButtons = document.querySelector('.buttons');
+operatorButtons.addEventListener('click', (buttonClicked) => {
+    let whichButtonClicked = buttonClicked.target;
+    lastButtonPressed = whichButtonClicked.id;
+    buttonPressHistory[0] = buttonPressHistory[1];
+    buttonPressHistory[1] = whichButtonClicked.id;
+    if (isOperator(buttonPressHistory[1]) && isOperator(buttonPressHistory[0])) {
+        console.log('No, dont!');
+    }
+});
+*/
+function isOperator(string) {
+    return string === '*' || string === '/' || string === '+' || string === '-';
+}
+
+//Populate the display with user's input
+const operationButtons = document.querySelector('.operation-buttons');
+const displayText = document.querySelector('.display-text');
+let displayContent = displayText.textContent;
+let lastSymbol = '';
+operationButtons.addEventListener('click', (buttonClicked) => {
+    lastSymbol = displayContent.split('').slice().reverse('')[0];
+    console.log(lastSymbol);
+    let selectedSymbol = buttonClicked.target;
+    if (!(isOperator(selectedSymbol.id) && isOperator(lastSymbol))) {
+        displayText.textContent = displayContent.concat('', String(selectedSymbol.id));
+        displayContent = displayText.textContent;
+    }
+});
+
+//Gets result of user's input
+const equalButton = document.querySelector('#equals');
+equalButton.addEventListener('click', () => {
+    displayText.textContent = applyOperationsAll(displayContent);
+    displayContent = '';
+});
+
+//Clear screen
+const clearButton = document.querySelector('#clear');
+clearButton.addEventListener('click', () => {
+    displayText.textContent = '';
+    displayContent = displayText.textContent;
+});
+
+//Delete previous input symbols
+const delButton = document.querySelector('#delete');
+delButton.addEventListener('click', () => {
+    displayText.textContent = displayContent.split('').slice(0, -1).join('');
+    displayContent = displayText.textContent;
+});
+
+
+//Tasks
+//- Make it impossible to have two operators in a row
+//Make it invalid if entry starts with an operator (except to indicate negative numbers)
